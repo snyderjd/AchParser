@@ -38,8 +38,15 @@ public class AchFileParser
                 case "1":
                     achFile.FileHeader = ParseFileHeader(line);
                     break;
-                case "5":currentBatch = new Batch();
-                    currentBatch = new Batch();
+                case "5":
+                    currentBatch = new Batch
+                    {
+                        BatchHeader = new BatchHeaderRecord
+                        {
+                            ServiceClassCode = string.Empty
+                        },
+                        EntryDetails = new List<EntryDetailRecord>()
+                    };
                     currentBatch.BatchHeader = ParseBatchHeader(line);
                     achFile.Batches.Add(currentBatch);
                     break;

@@ -1,60 +1,51 @@
 using Xunit;
+using System.Collections.Generic;
+using System.IO;
 
 namespace AchParser.Tests;
 
 public class AchFileParserTests
 {
-    // Tests for ParseFile
-
-    // Tests for ParseFileHeader
     [Fact]
-    public void ParseFileHeader_ValidHeader_ReturnsExpectedResult()
+    public void ParseFile_ValidAchFile_ReturnsExpectedAchFile()
     {
-        // Arrange
         var parser = new AchFileParser();
-        string headerLine = "101 123456789 9876543212001010000A094101Bank Name         Bank Name         ";
+        var testFilePath =  "/home/snyderjd/Workspace/BuildFinancialSoftware/AchParser/AchParser/SampleAchFiles/consumer_billing.txt";
         
-        // Act
-        var result = parser.ParseFileHeader(headerLine);
+        var result = parser.ParseFile(testFilePath);
 
-        // Assert
         Assert.NotNull(result);
-        Assert.Equal("123456789", result.ImmediateDestination);
-        Assert.Equal("987654321", result.ImmediateOrigin);
-        Assert.Equal("200101", result.FileCreationDate);
-        Assert.Equal("0000", result.FileCreationTime);
-        Assert.Equal("Bank Name", result.ImmediateDestinationName.Trim());
-        Assert.Equal("Bank Name", result.ImmediateOriginName.Trim());
+        Assert.NotNull(result.FileHeader);
+        Assert.Equal("026009593", result.FileHeader.ImmediateDestination);
+        Assert.Equal("026009593", result.FileHeader.ImmediateOrigin);
+        Assert.Equal("230113", result.FileHeader.FileCreationDate);
+        Assert.Equal("0000", result.FileHeader.FileCreationTime);
+        Assert.Equal("Bank Of America", result.FileHeader.ImmediateDestinationName);
+        Assert.Equal("Bank Of America", result.FileHeader.ImmediateOriginName);
+        Assert.NotNull(result.Batches);
+        Assert.Single(result.Batches);
+        
+        var batch = result.Batches[0];
+        
+        Assert.NotNull(batch.BatchHeader);
+        Assert.Equal("200", batch.BatchHeader.ServiceClassCode);
+        
+        Assert.Equal("Bob's Manufactur", batch.BatchHeader.CompanyName);
+        Assert.Equal("881234567", batch.BatchHeader.CompanyIdentification);
+        
+        Assert.NotNull(batch.EntryDetails);
+        Assert.Equal(5, batch.EntryDetails.Count);
+        Assert.Equal("026009593", batch.EntryDetails[0].RoutingNumber);
+        Assert.Equal("026009593", batch.EntryDetails[1].RoutingNumber);
+        
+        Assert.NotNull(batch.BatchControl);
+        
+        Assert.NotNull(result.FileControl);
+        
+        Assert.True(result.FileControl.BatchCount >= 0);
+        Assert.True(result.FileControl.BlockCount >= 0);
+        Assert.True(result.FileControl.EntryAddendaCount >= 0);
+        Assert.True(result.FileControl.TotalDebit >= 0);
+        Assert.True(result.FileControl.TotalCredit >= 0);
     }
-
-    [Fact]
-    public void ParseFileHeader_InvalidHeader_ThrowsFormatException()
-    {
-        // Arrange
-        var parser = new AchFileParser();
-        string invalidHeaderLine = "INVALID_HEADER";
-
-        // Act and Assert
-        Assert.Throws<FormatException>(() => parser.ParseFileHeader(invalidHeaderLine))
-    }
-
-    [Fact]
-    public void ParseFileHeader_NullHeader_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var parser = new AchFileParser();
-
-        // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => parser.ParseFileHeader(null));
-    }
-
-    // Tests for ParseBatchHeader
-
-    // Tests for ParseEntryDetail
-
-    // Tests for ParseAddenda
-
-    // Tests for ParseBatchContrl
-
-    // Tests for ParseFileControl
 }
