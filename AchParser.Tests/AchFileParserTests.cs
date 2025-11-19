@@ -10,7 +10,7 @@ public class AchFileParserTests
     public void ParseFile_ValidAchFile_ReturnsExpectedAchFile()
     {
         var parser = new AchFileParser();
-        var testFilePath =  "/home/snyderjd/Workspace/BuildFinancialSoftware/AchParser/AchParser/SampleAchFiles/consumer_billing.txt";
+        var testFilePath =  "/home/snyderjd/Workspace/FinancialSoftware/AchParser/AchParser/SampleAchFiles/consumer_billing.txt";
         
         var result = parser.ParseFile(testFilePath);
 
